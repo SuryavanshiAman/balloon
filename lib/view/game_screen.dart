@@ -576,7 +576,7 @@ class BalloonScreen extends StatefulWidget {
   _BalloonScreenState createState() => _BalloonScreenState();
 }
 
-class _BalloonScreenState extends State<BalloonScreen> with SingleTickerProviderStateMixin {
+class _BalloonScreenState extends State<BalloonScreen> with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _flyAnimation;
   final Random _random = Random();
@@ -591,6 +591,7 @@ bool blast =false;
       gameController.setBurstThreshold(gameController.balloonSize + _random.nextDouble() * 100.0);
 
     });
+
     // Setup animation controller for smooth flying
     _controller = AnimationController(
       vsync: this,
@@ -657,27 +658,28 @@ bool blast =false;
   void _showBurstAnimation(GameController gameController) {
     showDialog(
       barrierColor: Colors.transparent,
+      barrierDismissible: false,
       context: context,
       builder: (context) => AlertDialog(
+        alignment: Alignment.center,
         backgroundColor: Colors.transparent,
-        // title: Text("POP!"),
-        // content: Container(
-        //   height: 100,
-        //   decoration: BoxDecoration(
-        //     image: DecorationImage(image: AssetImage("assets/images/blasat.gif")),
-        //   ),
-        // ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _resetBalloon(gameController);
-            },
-            child: Text("Restart"),
-          ),
-        ],
+        content:  TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+            _resetBalloon(gameController);
+          },
+          child: Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                image: DecorationImage(image: AssetImage(Assets.imagesButton), fit: BoxFit.fill),
+              ),
+              child: Text("Restart the game",style: TextStyle(color: Colors.white,fontSize: 18,fontWeight:FontWeight.w600),)),
+        ),
       ),
     );
+
+
+
   }
 
   void _resetBalloon(GameController gameController) {
@@ -685,7 +687,7 @@ bool blast =false;
 blast=false;
     });
 
-    gameController.setBalloonSize(200.0);
+    gameController.setBalloonSize(300.0);
     gameController.setBurstThreshold(gameController.balloonSize + _random.nextDouble() * 100.0);
     gameController.setIsFlying(false);
     _controller.reset();
@@ -713,7 +715,7 @@ blast=false;
     final gameController = Provider.of<GameController>(context);
 print(blast);
     return Scaffold(
-      appBar: AppBar(title: Text("Balloon Game")),
+      // appBar: AppBar(title: Text("Balloon Game")),
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(image: AssetImage("assets/images/bg.png"), fit: BoxFit.fill),
@@ -722,12 +724,12 @@ print(blast);
           // alignment: Alignment.center,
           children: [
             Positioned(
-              top: height*0.1,
+              top: height*0.2,
               left: width*0.3,
               child: Container(
                 padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.2),
+                  color: Colors.white.withOpacity(0.4),
                   borderRadius: BorderRadius.circular(20)
                 ),
                 child: RichText(
@@ -749,18 +751,29 @@ print(blast);
                           ..onTap = () {
                           },
                       ),
+                      TextSpan(
+                        text: 'DMO',
+                        style: const TextStyle(
+                          color: Colors.orange,
+                          fontWeight: FontWeight.w600,fontSize: 14
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                          },
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
             // Balloon widget with the multiplied value displayed on it
+
             Positioned(
               bottom: _flyAnimation.value,
               child: AnimatedContainer(
                 duration: Duration(milliseconds: 300),
-                // width: gameController.balloonSize,
                 width: gameController.balloonSize,
+                // width: width*0.8,
                 height: gameController.balloonSize,
                 decoration: BoxDecoration(
                   // color: Colors.red,
@@ -776,7 +789,7 @@ print(blast);
                   child: Padding(
                     padding: const EdgeInsets.only(left: 58.0,bottom: 20),
                     child: Text(
-                      gameController.multipliedValue.toStringAsFixed(2),
+                        blast==true|| gameController.isFlying?"": gameController.multipliedValue.toStringAsFixed(2),
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -789,11 +802,19 @@ print(blast);
             ),
             // GestureDetector for button press
 Positioned(
-  top: height*0.6,
+  top: height*0.66,
+  left: 1,
+
   child: Container(
-    height: height*0.15,
+    height: height*0.18,
       width: width*0.5,
-      child: Image.asset(Assets.imagesPipe)),
+
+      decoration: BoxDecoration(
+          // color: Colors.red,
+        image: DecorationImage(image: AssetImage(Assets.imagesPipe),fit: BoxFit.fill)
+      ),
+      // child: Image.asset(Assets.imagesPipe,fit: BoxFit.fill,),
+  ),
 ),
             Positioned(
               left: width*0.4,
