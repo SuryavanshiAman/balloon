@@ -2,6 +2,7 @@
 class Assets {
   Assets._();
 
+  static const String imagesBalanceTag = 'assets/images/balance_tag.png';
   static const String imagesBalloon = 'assets/images/balloon.png';
   static const String imagesBg = 'assets/images/bg.png';
   static const String imagesBlasat = 'assets/images/blasat.gif';
@@ -9,5 +10,9 @@ class Assets {
   static const String imagesClick = 'assets/images/click.png';
   static const String imagesFlyingBallon = 'assets/images/flying_ballon.png';
   static const String imagesPipe = 'assets/images/pipe.png';
+  static const String imagesWin = 'assets/images/win.gif';
+  static const String lottiCoin = 'assets/lotti/coin.json';
+  static const String lottiConfety = 'assets/lotti/confety.json';
+  static const String lottiWin = 'assets/lotti/win.json';
 
 }

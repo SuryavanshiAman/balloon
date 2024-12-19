@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class GameController with ChangeNotifier{
-  double _balloonSize = 300.0; // Initial size
+  double _balloonSize = 250.0; // Initial size
   late double _burstThreshold;
   bool _isFlying = false;
   bool _isButtonPressed = false;
@@ -44,5 +45,30 @@ double get burstThreshold=>_burstThreshold;
   double get multipliedValue=>_multipliedValue;
   setMultipliedValue(double value){
     _multipliedValue=value;
+  }
+}
+class GradientText extends StatelessWidget {
+  final String text;
+  final TextStyle style;
+  final Gradient gradient;
+
+  const GradientText({
+    Key? key,
+    required this.text,
+    required this.style,
+    required this.gradient,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ShaderMask(
+      shaderCallback: (bounds) => gradient.createShader(
+        Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+      ),
+      child: Text(
+        text,
+        style: style.copyWith(color: Colors.white), // Color is ignored due to ShaderMask
+      ),
+    );
   }
 }
