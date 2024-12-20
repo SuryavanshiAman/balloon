@@ -6,7 +6,10 @@ class GameController with ChangeNotifier{
   late double _burstThreshold;
   bool _isFlying = false;
   bool _isButtonPressed = false;
-   double _sizeIncrement = 3.0; // Size increase per tick
+  bool _blast = false;
+  bool _winGif = false;
+  String _walletAmount="3000";
+   double _sizeIncrement = 5.0; // Size increase per tick
   final List<String> amount = ['2', '5', '10', '15','20','25','30'];
   int _selectedIndex = 1;
   double _multipliedValue = 0.0;
@@ -16,12 +19,26 @@ class GameController with ChangeNotifier{
     _balloonSize=value;
     notifyListeners();
   }
+  bool get blast=>_blast;
+  setBlast(bool value){
+    _blast=value;
+    notifyListeners();
+  }
+  bool get winGif=>_winGif;
+  setWinGif(bool value){
+    _winGif=value;
+    notifyListeners();
+  }
 double get burstThreshold=>_burstThreshold;
   setBurstThreshold(double value){
     _burstThreshold=value;
     notifyListeners();
   }
-
+  String get walletAmount=>_walletAmount;
+  setWalletAmount(String value){
+    _walletAmount=value;
+    notifyListeners();
+  }
   bool get isFlying=>_isFlying;
   setIsFlying(bool value){
     _isFlying=value;
@@ -42,6 +59,7 @@ double get burstThreshold=>_burstThreshold;
     _selectedIndex=value;
     notifyListeners();
   }
+
   double get multipliedValue=>_multipliedValue;
   setMultipliedValue(double value){
     _multipliedValue=value;
@@ -70,5 +88,33 @@ class GradientText extends StatelessWidget {
         style: style.copyWith(color: Colors.white), // Color is ignored due to ShaderMask
       ),
     );
+  }
+}
+class CurvedPipePainter extends CustomPainter {
+  final double animationValue;
+
+  CurvedPipePainter(this.animationValue);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3;
+
+    // Define a path for the curved pipe
+    Path path = Path();
+    double controlPointX = size.width * (0.5 - animationValue * 0.4);
+    double controlPointY = size.height/2;
+    path.moveTo(-3, size.height);
+    path.quadraticBezierTo(controlPointX, controlPointY, size.width, size.height);
+
+    // Draw the path
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return true; // Always repaint for animation
   }
 }

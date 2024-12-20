@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:math';
 import 'package:balloon/game_controller.dart';
@@ -18,16 +17,17 @@ class _BalloonScreenState extends State<BalloonScreen>
     with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _flyAnimation;
+  late AnimationController _pipeController;
+  late Animation<double> _pipeAnimation;
+  late AnimationController _zigController;
+  late Animation<double> _zigAnimation;
   final Random _random = Random();
   Timer? _timer;
-  bool blast = false;
-  bool winGif = false;
   @override
   void initState() {
     super.initState();
     final gameController = Provider.of<GameController>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Generate the initial burst threshold
       gameController.setBurstThreshold(
           gameController.balloonSize + _random.nextDouble() * 100.0);
     });
@@ -45,14 +45,37 @@ class _BalloonScreenState extends State<BalloonScreen>
 
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        setState(() {
-          blast = true;
-        });
+        gameController.setBlast(true);
         _showBurstAnimation(gameController);
-        gameController.setMultipliedValue(double.parse(gameController.amount[
-        gameController.selectedIndex]));
+        gameController.setMultipliedValue(
+            double.parse(gameController.amount[gameController.selectedIndex]));
       }
     });
+    _pipeController = AnimationController(
+      duration: Duration(seconds: 2),
+      vsync: this,
+    );
+
+    // Define the animation with a curve
+    _pipeAnimation = CurvedAnimation(
+      parent: _pipeController,
+      curve: Curves.easeInOut,
+    );
+    _zigController = AnimationController(
+      duration: Duration(seconds: 2),
+      vsync: this,
+    );
+
+    _zigAnimation = Tween<double>(begin: 1.0, end: 0.1).animate(
+      CurvedAnimation(parent: _zigController, curve: Curves.easeInOut),
+    );
+  }
+  void _startPipeAnimation() {
+    _pipeController.forward();
+  }
+
+  void _resetPipeAnimation() {
+    _pipeController.reverse();
   }
 
   void _increaseSize(GameController gameController) {
@@ -70,37 +93,29 @@ class _BalloonScreenState extends State<BalloonScreen>
 
     // Random chance for balloon to burst
     if (_random.nextDouble() < 0.02) {
-      setState(() {
-        blast = true;
-      });
+      gameController.setBlast(true);
       _showBurstAnimation(gameController);
-      gameController.setMultipliedValue(double.parse(gameController.amount[
-      gameController.selectedIndex]));
+      gameController.setMultipliedValue(
+          double.parse(gameController.amount[gameController.selectedIndex]));
     }
 
     if (gameController.balloonSize >= gameController.burstThreshold) {
       if (_random.nextBool()) {
-        setState(() {
-          winGif = false;
-        });
+        gameController.setWinGif(false);
         _startFlying(gameController); // Balloon flies
-        gameController.setMultipliedValue(double.parse(gameController.amount[
-        gameController.selectedIndex]));
+        gameController.setMultipliedValue(
+            double.parse(gameController.amount[gameController.selectedIndex]));
       } else {
-        setState(() {
-          blast = true;
-        });
+        gameController.setBlast(true);
         _showBurstAnimation(gameController);
-        gameController.setMultipliedValue(double.parse(gameController.amount[
-        gameController.selectedIndex]) );
+        gameController.setMultipliedValue(
+            double.parse(gameController.amount[gameController.selectedIndex]));
       }
     }
   }
 
   void _startFlying(GameController gameController) {
-    setState(() {
-      winGif = false;
-    });
+    gameController.setWinGif(false);
     gameController.setIsFlying(true);
     _controller.forward(); // Start the flying animation
   }
@@ -137,9 +152,7 @@ class _BalloonScreenState extends State<BalloonScreen>
   }
 
   void _resetBalloon(GameController gameController) {
-    setState(() {
-      blast = false;
-    });
+    gameController.setBlast(false);
     gameController.setBalloonSize(250.0);
     gameController.setBurstThreshold(
         gameController.balloonSize + _random.nextDouble() * 100.0);
@@ -148,7 +161,7 @@ class _BalloonScreenState extends State<BalloonScreen>
   }
 
   void _startTimer(GameController gameController) {
-    _timer = Timer.periodic(Duration(milliseconds: 50), (timer) {
+    _timer = Timer.periodic(Duration(milliseconds: 700), (timer) {
       _increaseSize(gameController);
     });
   }
@@ -163,6 +176,7 @@ class _BalloonScreenState extends State<BalloonScreen>
     _timer?.cancel();
     super.dispose();
   }
+
   final ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
@@ -181,8 +195,8 @@ class _BalloonScreenState extends State<BalloonScreen>
               child: Stack(
                 children: [
                   Container(
-                    padding:
-                        EdgeInsets.only(left: 60, top: 12, bottom: 12, right: 12),
+                    padding: EdgeInsets.only(
+                        left: 60, top: 12, bottom: 12, right: 12),
                     decoration: BoxDecoration(
                         image: DecorationImage(
                             image: AssetImage(Assets.imagesBalanceTag),
@@ -200,7 +214,8 @@ class _BalloonScreenState extends State<BalloonScreen>
                                 fontWeight: FontWeight.w600,
                                 shadows: [
                                   Shadow(
-                                    offset: Offset(1.1, 1.1), // Creates the 3D effect
+                                    offset: Offset(
+                                        1.1, 1.1), // Creates the 3D effect
                                     blurRadius: 2.0,
                                     color: Colors.grey,
                                   ),
@@ -213,28 +228,28 @@ class _BalloonScreenState extends State<BalloonScreen>
                           ),
                           WidgetSpan(
                             child: GradientText(
-                              text: " 3000",
+                              text: gameController.walletAmount,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 shadows: [
                                   Shadow(
-                                    offset: Offset(1, 1), // Creates the 3D effect
+                                    offset:
+                                        Offset(1, 1), // Creates the 3D effect
                                     blurRadius: 2.0,
                                     color: Colors.grey,
                                   ),
                                 ],
                               ),
                               gradient: LinearGradient(
-                               colors: [
+                                colors: [
                                   Color(0xFFFFD700), // Gold
-                              Color(0xFFFFC107), // Lighter Gold
-                              Color(0xFFFFA500),
-                              ],
+                                  Color(0xFFFFC107), // Lighter Gold
+                                  Color(0xFFFFA500),
+                                ],
                               ),
                             ),
                           ),
-
                           WidgetSpan(
                             child: GradientText(
                               text: ' DMO',
@@ -258,20 +273,23 @@ class _BalloonScreenState extends State<BalloonScreen>
                       ),
                     ),
                   ),
-                  winGif == true
+                  gameController.winGif == true
                       ? Positioned(
-                    left: width * 0.15,
-                    top: -25 ,
-                    child: SizedBox(
-                        height: 100,
-                        width:200 ,
-                        child: Lottie.asset("assets/lotti/confety.json",)),
-                  ):Container(),
+                          left: width * 0.15,
+                          top: -25,
+                          child: SizedBox(
+                              height: 100,
+                              width: 200,
+                              child: Lottie.asset(
+                                "assets/lotti/confety.json",
+                              )),
+                        )
+                      : Container(),
                   // Lottie.asset("assets/lotti/coin.json",)
                 ],
               ),
             ),
-            winGif == true
+            gameController.winGif == true
                 ? Positioned(
                     bottom: _flyAnimation.value,
                     child: SizedBox(
@@ -282,20 +300,21 @@ class _BalloonScreenState extends State<BalloonScreen>
                   )
                 : Positioned(
                     bottom: _flyAnimation.value,
+                    left: 40,
                     child: AnimatedContainer(
                       duration: Duration(milliseconds: 300),
                       // width: gameController.balloonSize,
-                      width: winGif == true
+                      width: gameController.winGif == true
                           ? width * 1
                           : gameController.balloonSize,
-                      height: winGif == true
+                      height: gameController.winGif == true
                           ? height * 0.35
                           : gameController.balloonSize,
                       // height: gameController.balloonSize,
                       decoration: BoxDecoration(
                         // color: Colors.red,
                         image: DecorationImage(
-                            image: AssetImage(blast == true
+                            image: AssetImage(gameController.blast == true
                                 ? Assets.imagesBlasat
                                 : gameController.isFlying
                                     ? Assets.imagesFlyingBallon
@@ -305,23 +324,23 @@ class _BalloonScreenState extends State<BalloonScreen>
                         child: Padding(
                           padding:
                               const EdgeInsets.only(left: 58.0, bottom: 20),
-                          child:
-                              Text(
-                                  blast == true || gameController.isFlying
-                                      ? ""
-                                      : gameController.multipliedValue
-                                          .toStringAsFixed(2),
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                          child: Text(
+                            gameController.blast == true ||
+                                    gameController.isFlying
+                                ? ""
+                                : gameController.multipliedValue
+                                    .toStringAsFixed(2),
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-            winGif == true
+            gameController.winGif == true
                 ? Positioned(
                     bottom: _flyAnimation.value,
                     child: SizedBox(
@@ -436,17 +455,38 @@ class _BalloonScreenState extends State<BalloonScreen>
                   )
                 : Container(),
             Positioned(
-              top: height * 0.66,
-              left: 1,
-              child: Container(
-                height: height * 0.18,
-                width: width * 0.5,
+              top: height * 0.61,
+              child: AnimatedBuilder(
+                animation: _pipeAnimation,
+                builder: (context, child) {
+                  return Transform.rotate(
+                    angle: pi/1.4,
 
-                decoration: BoxDecoration(
-                    // color: Colors.red,
-                    image: DecorationImage(
-                        image: AssetImage(Assets.imagesPipe),
-                        fit: BoxFit.fill)),
+                    child: CustomPaint(
+                      painter: CurvedPipePainter(_pipeAnimation.value),
+                      child: SizedBox(
+                        width: width * 0.27,
+                        height: height * 0.09,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          Positioned(
+              top: height * 0.45,
+              // left: 1,
+              child: AnimatedBuilder(
+                animation: _pipeAnimation,
+                builder: (context, child) {
+                  return CustomPaint(
+                    painter: CurvedPipePainter(_pipeAnimation.value),
+                    child: SizedBox(
+                      width: width * 0.5,
+                      height: height * 0.4,
+                    ),
+                  );
+                },
               ),
             ),
             Positioned(
@@ -456,24 +496,33 @@ class _BalloonScreenState extends State<BalloonScreen>
                 onTapDown: (_) {
                   gameController.setIsButtonPressed(true);
                   _startTimer(gameController);
+                  _startPipeAnimation();
                 },
                 onTapUp: (_) {
                   gameController.setIsButtonPressed(false);
                   _stopTimer();
                   setState(() {
-                    winGif = true;
+                    gameController.setWinGif(true);
                   });
+                  gameController.setWalletAmount(
+                      (double.parse(gameController.walletAmount) +
+                              double.parse(gameController.multipliedValue
+                                  .toStringAsFixed(2)))
+                          .toString());
+                  gameController.setBalloonSize(250.0);
                   Future.delayed(Duration(seconds: 2), () {
-                    setState(() {
-                      winGif = false;
-                      gameController.setMultipliedValue(double.parse(gameController.amount[
-                      gameController.selectedIndex]));
-                    });
+                    gameController.setWinGif(false);
+                    // setState(() {
+
+                    gameController.setMultipliedValue(double.parse(
+                        gameController.amount[gameController.selectedIndex]));
                   });
+                  _resetPipeAnimation();
                 },
                 onTapCancel: () {
                   gameController.setIsButtonPressed(false);
                   _stopTimer();
+                  _resetPipeAnimation();
                 },
                 child: CircleAvatar(
                   radius: 40,
@@ -481,97 +530,105 @@ class _BalloonScreenState extends State<BalloonScreen>
                 ),
               ),
             ),
-        Positioned(
-          bottom: 15,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  final newIndex = max(0, gameController.selectedIndex - 1);
-                  gameController.setSelectedIndex(newIndex);
-                  _scrollToCenter(newIndex, width);
-                },
-                child: Icon(Icons.arrow_left, size: 40, color: Colors.white),
-              ),
-              SizedBox(
-                width: width * 0.8,
-                height: height * 0.08,
-                child: ListView.builder(
-                  controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  itemCount: gameController.amount.length,
-                  itemBuilder: (context, index) {
-                    final isSelected = index == gameController.selectedIndex;
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              gameController.setSelectedIndex(index);
-                              gameController.setMultipliedValue(
-                                double.parse(
-                                    gameController.amount[gameController.selectedIndex]),
-                              );
-                              _scrollToCenter(index, width);
-                            },
-                            child: Transform.translate(
-                              offset: isSelected ? Offset(0, -8) : Offset(0, 0),
-                              child: Text(
-                                gameController.amount[index],
-                                style: TextStyle(
-                                  fontSize:isSelected
-                                      ? 20:18,
-                                  fontWeight: isSelected
-                                      ? FontWeight.w900
-                                      : FontWeight.normal,
-                                  color: isSelected
-                                      ? Colors.white
-                                      : Colors.white70,
+            Positioned(
+              bottom: 15,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      final newIndex = max(0, gameController.selectedIndex - 1);
+                      gameController.setSelectedIndex(newIndex);
+                      _scrollToCenter(newIndex, width);
+                    },
+                    child:
+                        Icon(Icons.arrow_left, size: 40, color: Colors.white),
+                  ),
+                  SizedBox(
+                    width: width * 0.8,
+                    height: height * 0.08,
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: gameController.amount.length,
+                      itemBuilder: (context, index) {
+                        final isSelected =
+                            index == gameController.selectedIndex;
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  gameController.setSelectedIndex(index);
+                                  gameController.setMultipliedValue(
+                                    double.parse(gameController
+                                        .amount[gameController.selectedIndex]),
+                                  );
+                                  _scrollToCenter(index, width);
+                                },
+                                child: Transform.translate(
+                                  offset:
+                                      isSelected ? Offset(0, -8) : Offset(0, 0),
+                                  child: Text(
+                                    gameController.amount[index],
+                                    style: TextStyle(
+                                      fontSize: isSelected ? 20 : 18,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w900
+                                          : FontWeight.normal,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : Colors.white70,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                          Transform.translate(
-                            offset: isSelected ? Offset(0, -8) : Offset(0, 0),
-                            child: Text(
-                              'DMO',
-                              style: TextStyle(
-                                fontSize: isSelected ?16:12,
-                                fontWeight: isSelected
-                                    ? FontWeight.w900
-                                    : FontWeight.normal,
-                                color: isSelected ? Colors.white : Colors.white54,
+                              Transform.translate(
+                                offset:
+                                    isSelected ? Offset(0, -8) : Offset(0, 0),
+                                child: Text(
+                                  'DMO',
+                                  style: TextStyle(
+                                    fontSize: isSelected ? 16 : 12,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w900
+                                        : FontWeight.normal,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : Colors.white54,
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                        );
+                      },
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      final newIndex = min(gameController.amount.length - 1,
+                          gameController.selectedIndex + 1);
+                      gameController.setSelectedIndex(newIndex);
+                      _scrollToCenter(newIndex, width);
+                    },
+                    child:
+                        Icon(Icons.arrow_right, size: 40, color: Colors.white),
+                  ),
+                ],
               ),
-              GestureDetector(
-                onTap: () {
-                  final newIndex = min(gameController.amount.length - 1,
-                      gameController.selectedIndex + 1);
-                  gameController.setSelectedIndex(newIndex);
-                  _scrollToCenter(newIndex, width);
-                },
-                child: Icon(Icons.arrow_right, size: 40, color: Colors.white),
-              ),
-            ],
-          ),
-        )
+            )
           ],
         ),
       ),
     );
   }
+
   void _scrollToCenter(int index, double listViewWidth) {
-    const itemWidth = 100.0; // Adjust based on the actual item width and padding
+    const itemWidth =
+        100.0; // Adjust based on the actual item width and padding
     final offset = (index * itemWidth) - (listViewWidth / 2) + (itemWidth / 2);
 
     _scrollController.animateTo(
@@ -580,12 +637,4 @@ class _BalloonScreenState extends State<BalloonScreen>
       curve: Curves.easeInOut,
     );
   }
-  // void _scrollToIndex(int index) {
-  //   const itemExtent = 100.0; // Adjust based on your item width and padding
-  //   _scrollController.animateTo(
-  //     index * itemExtent,
-  //     duration: const Duration(milliseconds: 300),
-  //     curve: Curves.easeInOut,
-  //   );
-  // }
 }
