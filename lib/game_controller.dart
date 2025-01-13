@@ -107,7 +107,10 @@ class CurvedPipePainter extends CustomPainter {
     double controlPointX = size.width * (0.5 - animationValue * 0.4);
     double controlPointY = size.height/2;
     path.moveTo(-3, size.height);
-    path.quadraticBezierTo(controlPointX, controlPointY, size.width, size.height);
+    path.quadraticBezierTo(controlPointX, controlPointY, size.width,  size.height);
+
+    // path.moveTo(-3, size.height);
+    // path.quadraticBezierTo(controlPointX, controlPointY, size.width, size.height);
 
     // Draw the path
     canvas.drawPath(path, paint);
@@ -116,5 +119,99 @@ class CurvedPipePainter extends CustomPainter {
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
     return true; // Always repaint for animation
+  }
+}
+// class CurvedPipeTail extends CustomPainter {
+//   final double animationValue;
+//   final Offset startPoint;
+//
+//   CurvedPipeTail(this.animationValue,this.startPoint);
+//
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     Paint paint = Paint()
+//       ..color = Colors.white
+//       ..style = PaintingStyle.stroke
+//       ..strokeWidth = 3;
+//
+//     // Define a path for the curved pipe
+//     Path path = Path();
+//     double controlPointX = size.width * (0.5 - animationValue * 0.4);
+//     double controlPointY = size.height/2;
+//     path.moveTo(-3, startPoint.dy);
+//     path.quadraticBezierTo(controlPointX, controlPointY, size.width,  size.height);
+//
+//     // Draw the path
+//     canvas.drawPath(path, paint);
+//   }
+//
+//   @override
+//   bool shouldRepaint(CustomPainter oldDelegate) {
+//     return true; // Always repaint for animation
+//   }
+// }
+
+class CurvedPipeTail extends CustomPainter {
+  final double animationValue;
+  final Offset startPoint;
+
+  CurvedPipeTail(this.animationValue, this.startPoint);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3;
+
+    // Define a path for the curved pipe
+    Path path = Path();
+    // Modify control point to move the curve forward as animation progresses
+    double controlPointX = startPoint.dx + size.width * (0.5 - animationValue * 0.4);  // Adjust for forward movement
+    double controlPointY = size.height/2;
+    path.moveTo(-3, startPoint.dy);
+    path.quadraticBezierTo(controlPointX, controlPointY, size.width,  size.height); // Draw the curve
+
+    // Draw the path
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return true; // Always repaint for animation
+  }
+}
+
+class TailPainter extends CustomPainter {
+  final double tailHeight;
+  final double balloonWidth;
+
+  TailPainter({required this.tailHeight, required this.balloonWidth});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..color = Colors.black
+      ..strokeWidth = 3
+      ..style = PaintingStyle.stroke; // Stroke only, no fill
+
+    // Start the path at the base of the balloon
+    Path path = Path();
+      // ..moveTo(balloonWidth / 2, 0); // Starting point at the center of the balloon's bottom
+
+    // Control points to create a smooth curve
+    path.quadraticBezierTo(
+      balloonWidth / 3, // Control point X (adjust for the curve)
+      tailHeight / 2,    // Control point Y (adjust for how much curve you want)
+      balloonWidth / 2,  // End point X (same X to maintain the center of the balloon)
+      tailHeight,        // End point Y (tail height)
+    );
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true; // Always repaint when the tail changes
   }
 }
