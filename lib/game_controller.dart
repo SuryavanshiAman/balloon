@@ -150,10 +150,10 @@ class CurvedPipePainter extends CustomPainter {
 //     return true; // Always repaint for animation
 //   }
 // }
-
+///
 class CurvedPipeTail extends CustomPainter {
   final double animationValue;
-  final Offset startPoint;
+  final Offset startPoint; // Starting position of the pipe
 
   CurvedPipeTail(this.animationValue, this.startPoint);
 
@@ -166,11 +166,14 @@ class CurvedPipeTail extends CustomPainter {
 
     // Define a path for the curved pipe
     Path path = Path();
-    // Modify control point to move the curve forward as animation progresses
-    double controlPointX = startPoint.dx + size.width * (0.5 - animationValue * 0.4);  // Adjust for forward movement
-    double controlPointY = size.height/2;
-    path.moveTo(-3, startPoint.dy);
-    path.quadraticBezierTo(controlPointX, controlPointY, size.width,  size.height); // Draw the curve
+    double controlPointX = size.width * (0.5 * animationValue*0.4);
+    double controlPointY = size.height; // Adjusts height dynamically
+    double endPointY = size.width;
+
+    // Start point dynamically set based on the container
+    // path.moveTo(-3, size.height);
+    path.moveTo(37, startPoint.dy);
+    path.quadraticBezierTo(2+ controlPointX, controlPointY, size.width, endPointY);
 
     // Draw the path
     canvas.drawPath(path, paint);
@@ -181,6 +184,7 @@ class CurvedPipeTail extends CustomPainter {
     return true; // Always repaint for animation
   }
 }
+
 
 class TailPainter extends CustomPainter {
   final double tailHeight;

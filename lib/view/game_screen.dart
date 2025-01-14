@@ -19,8 +19,8 @@ class _BalloonScreenState extends State<BalloonScreen>
   late Animation<double> _flyAnimation;
   late AnimationController _pipeController;
   late Animation<double> _pipeAnimation;
-  late AnimationController _tailController;
-  late Animation<double> _tailAnimation;
+  // late AnimationController _tailController;
+  // late Animation<double> _tailAnimation;
   final Random _random = Random();
   Timer? _timer;
   @override
@@ -31,7 +31,7 @@ class _BalloonScreenState extends State<BalloonScreen>
       gameController.setBurstThreshold(
           gameController.balloonSize + _random.nextDouble() * 100.0);
     });
-    _tailController = AnimationController(vsync: this, duration: Duration(seconds: 1));
+    // _tailController = AnimationController(vsync: this, duration: Duration(seconds: 1));
     // Setup animation controller for smooth flying
     _controller = AnimationController(
       vsync: this,
@@ -59,12 +59,12 @@ class _BalloonScreenState extends State<BalloonScreen>
     // Define the animation with a curve
     _pipeAnimation = CurvedAnimation(
       parent: _pipeController,
-      curve: Curves.easeInOut,
+      curve: Curves.easeInBack,
     );
-    _tailAnimation = Tween<double>(
-      begin: 0.0,
-      end: gameController.balloonSize * 0.5, // Tail size grows with balloon
-    ).animate(CurvedAnimation(parent: _tailController, curve: Curves.easeOut));
+    // _tailAnimation = Tween<double>(
+    //   begin: 0.0,
+    //   end: gameController.balloonSize * 0.5, // Tail size grows with balloon
+    // ).animate(CurvedAnimation(parent: _tailController, curve: Curves.easeIn));
 
   }
   void _startPipeAnimation() {
@@ -109,11 +109,11 @@ class _BalloonScreenState extends State<BalloonScreen>
             double.parse(gameController.amount[gameController.selectedIndex]));
       }
     }
-    _tailAnimation = Tween<double>(
-      begin: 0.0,
-      end: gameController.balloonSize * 0.5, // Tail size grows with balloon
-    ).animate(CurvedAnimation(parent: _tailController, curve: Curves.easeOut));
-    _tailController.forward();
+    // _tailAnimation = Tween<double>(
+    //   begin: 0.0,
+    //   end: gameController.balloonSize * 0.5, // Tail size grows with balloon
+    // ).animate(CurvedAnimation(parent: _tailController, curve: Curves.easeOut));
+    // _tailController.forward();
   }
 
   void _startFlying(GameController gameController) {
@@ -302,16 +302,22 @@ class _BalloonScreenState extends State<BalloonScreen>
                     ),
                   )
                 :
-
-
             Positioned(
               bottom: _flyAnimation.value,
               left: 40,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  AnimatedContainer(
-                    duration: Duration(milliseconds: 300),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    RenderBox box = _containerKey.currentContext!.findRenderObject() as RenderBox;
+                    Offset position = box.localToGlobal(Offset.zero);
+
+                    setState(() {
+                      _startPosition = position;
+                    });
+                  });
+
+                  return Container(
+                    key: _containerKey,
                     width: gameController.winGif == true
                         ? width * 1
                         : gameController.balloonSize,
@@ -327,25 +333,54 @@ class _BalloonScreenState extends State<BalloonScreen>
                             : Assets.imagesBalloon),
                       ),
                     ),
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 58.0, bottom: 20),
-                        child: Text(
-                          gameController.blast == true || gameController.isFlying
-                              ? ""
-                              : gameController.multipliedValue.toStringAsFixed(2),
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                  );
+                },
               ),
             ),
+
+
+            // Positioned(
+            //   bottom: _flyAnimation.value,
+            //   left: 40,
+            //   child: Stack(
+            //     clipBehavior: Clip.none,
+            //     children: [
+            //       AnimatedContainer(
+            //         duration: Duration(milliseconds: 300),
+            //         width: gameController.winGif == true
+            //             ? width * 1
+            //             : gameController.balloonSize,
+            //         height: gameController.winGif == true
+            //             ? height * 0.35
+            //             : gameController.balloonSize,
+            //         decoration: BoxDecoration(
+            //           image: DecorationImage(
+            //             image: AssetImage(gameController.blast == true
+            //                 ? Assets.imagesBlasat
+            //                 : gameController.isFlying
+            //                 ? Assets.imagesFlyingBallon
+            //                 : Assets.imagesBalloon),
+            //           ),
+            //         ),
+            //         child: Center(
+            //           child: Padding(
+            //             padding: const EdgeInsets.only(left: 58.0, bottom: 20),
+            //             child: Text(
+            //               gameController.blast == true || gameController.isFlying
+            //                   ? ""
+            //                   : gameController.multipliedValue.toStringAsFixed(2),
+            //               style: TextStyle(
+            //                 fontSize: 24,
+            //                 fontWeight: FontWeight.bold,
+            //                 color: Colors.white,
+            //               ),
+            //             ),
+            //           ),
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
 
             gameController.winGif == true
                 ? Positioned(
@@ -462,8 +497,8 @@ class _BalloonScreenState extends State<BalloonScreen>
                   )
                 : Container(),
             Positioned(
-              top: height * 0.58 , // Moves upwards based on the animation
-              left: 1,
+              top: height * 0.55 , // Moves upwards based on the animation
+              left: -3,
               child: AnimatedBuilder(
                 animation: _pipeAnimation,
                 builder: (context, child) {
@@ -471,9 +506,10 @@ class _BalloonScreenState extends State<BalloonScreen>
                     angle: 2.3,
                     child: CustomPaint(
                       painter: CurvedPipeTail(_pipeAnimation.value,_startPosition),
-                      child: SizedBox(
-                        width: width * 0.5,
-                        height: height *0.4, // Increase the height as the animation value increases
+                      child: Container(
+                        // color: Colors.red,
+                        width: width * 0.6,
+                        height: height *0.45, // Increase the height as the animation value increases
                       ),
                     ),
                   );
