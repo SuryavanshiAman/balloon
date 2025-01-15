@@ -52,23 +52,19 @@ class _BalloonScreenState extends State<BalloonScreen>
       }
     });
     _pipeController = AnimationController(
-      duration: Duration(seconds: 2),
+      duration: Duration(seconds: 10),
       vsync: this,
-    )..repeat(reverse: false);
+    );
 
     // Define the animation with a curve
-    _pipeAnimation = CurvedAnimation(
+    _pipeAnimation =CurvedAnimation(
       parent: _pipeController,
-      curve: Curves.easeInBack,
+      curve: Curves.easeInOut,
     );
-    // _tailAnimation = Tween<double>(
-    //   begin: 0.0,
-    //   end: gameController.balloonSize * 0.5, // Tail size grows with balloon
-    // ).animate(CurvedAnimation(parent: _tailController, curve: Curves.easeIn));
 
   }
   void _startPipeAnimation() {
-    _pipeController.forward();
+  _pipeController.forward();
   }
 
   void _resetPipeAnimation() {
@@ -310,29 +306,47 @@ class _BalloonScreenState extends State<BalloonScreen>
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     RenderBox box = _containerKey.currentContext!.findRenderObject() as RenderBox;
                     Offset position = box.localToGlobal(Offset.zero);
-
                     setState(() {
                       _startPosition = position;
                     });
                   });
 
-                  return Container(
-                    key: _containerKey,
-                    width: gameController.winGif == true
-                        ? width * 1
-                        : gameController.balloonSize,
-                    height: gameController.winGif == true
-                        ? height * 0.35
-                        : gameController.balloonSize,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage(gameController.blast == true
-                            ? Assets.imagesBlasat
-                            : gameController.isFlying
-                            ? Assets.imagesFlyingBallon
-                            : Assets.imagesBalloon),
+                  return Stack(
+                    children: [
+                      Container(
+                        key: _containerKey,
+                        width: gameController.winGif == true
+                            ? width * 1
+                            : gameController.balloonSize,
+                        height: gameController.winGif == true
+                            ? height * 0.35
+                            : gameController.balloonSize,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage(gameController.blast == true
+                                ? Assets.imagesBlasat
+                                : gameController.isFlying
+                                ? Assets.imagesFlyingBallon
+                                : Assets.imagesBalloon),
+                          ),
+                        ),
                       ),
-                    ),
+                      Center(
+                        child: Padding(
+                          padding:  EdgeInsets.only(left: 80.0, top: height*0.12),
+                          child: Text(
+                            gameController.blast == true || gameController.isFlying
+                                ? ""
+                                : gameController.multipliedValue.toStringAsFixed(2),
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   );
                 },
               ),
@@ -497,41 +511,37 @@ class _BalloonScreenState extends State<BalloonScreen>
                   )
                 : Container(),
             Positioned(
-              top: height * 0.55 , // Moves upwards based on the animation
-              left: -3,
-              child: AnimatedBuilder(
-                animation: _pipeAnimation,
-                builder: (context, child) {
-                  return Transform.rotate(
-                    angle: 2.3,
-                    child: CustomPaint(
-                      painter: CurvedPipeTail(_pipeAnimation.value,_startPosition),
-                      child: Container(
-                        // color: Colors.red,
-                        width: width * 0.6,
-                        height: height *0.45, // Increase the height as the animation value increases
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          Positioned(
-              top: height * 0.45,
-              // left: 1,
+              top: height * 0.18 , // Moves upwards based on the animation
+              left: -5,
               child: AnimatedBuilder(
                 animation: _pipeAnimation,
                 builder: (context, child) {
                   return CustomPaint(
-                    painter: CurvedPipePainter(_pipeAnimation.value),
-                    child: SizedBox(
-                      width: width * 0.5,
-                      height: height * 0.4,
+                    painter: CurvedPipeTail(_pipeAnimation.value-7,_startPosition),
+                    child: Container(
+                      width: width * 0.6,
+                      height: height *0.45 , // Increase the height as the animation value increases
                     ),
                   );
                 },
               ),
             ),
+          // Positioned(
+          //     top: height * 0.45,
+          //     // left: 1,
+          //     child: AnimatedBuilder(
+          //       animation: _pipeAnimation,
+          //       builder: (context, child) {
+          //         return CustomPaint(
+          //           painter: CurvedPipePainter(_pipeAnimation.value),
+          //           child: SizedBox(
+          //             width: width * 0.5,
+          //             height: height * 0.4,
+          //           ),
+          //         );
+          //       },
+          //     ),
+          //   ),
             Positioned(
               left: width * 0.4,
               bottom: height * 0.1,

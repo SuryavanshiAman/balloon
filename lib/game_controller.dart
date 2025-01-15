@@ -163,20 +163,24 @@ class CurvedPipeTail extends CustomPainter {
       ..color = Colors.white
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
-
-    // Define a path for the curved pipe
     Path path = Path();
-    double controlPointX = size.width * (0.5 * animationValue*0.4);
-    double controlPointY = size.height; // Adjusts height dynamically
-    double endPointY = size.width;
 
-    // Start point dynamically set based on the container
-    // path.moveTo(-3, size.height);
-    path.moveTo(37, startPoint.dy);
-    path.quadraticBezierTo(2+ controlPointX, controlPointY, size.width, endPointY);
+    double controlPointX = size.height * (0.2 * animationValue*0.1);
+    double controlPointY = size.height;
+    path.moveTo(45, startPoint.dy);
+    // path.lineTo(startPoint.dx,startPoint.dy);
+    path.quadraticBezierTo(controlPointX-20, controlPointY+50, size.width, size.height*1.5);
 
     // Draw the path
     canvas.drawPath(path, paint);
+    /// working
+    // Path path = Path();
+    // double controlPointX = size.width * (0.5 * animationValue*0.4);
+    // double controlPointY = size.height; // Adjusts height dynamically
+    // double endPointY = size.width;
+    // path.moveTo(37, startPoint.dy);
+    // path.quadraticBezierTo(2+ controlPointX, controlPointY, size.width, endPointY);
+    // canvas.drawPath(path, paint);
   }
 
   @override
