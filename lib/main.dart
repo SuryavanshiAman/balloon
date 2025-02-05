@@ -1,6 +1,7 @@
 import 'package:balloon/game_controller.dart';
 import 'package:balloon/res/app_constant.dart';
 import 'package:balloon/view/game_screen.dart';
+import 'package:balloon/view_model/amount_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +20,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => GameController()),
+          ChangeNotifierProvider(create: (_) => AmountListViewModel()),
 
         ],
       child: MaterialApp(

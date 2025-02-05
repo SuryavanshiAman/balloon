@@ -52,6 +52,7 @@ class _BalloonScreenState extends State<BalloonScreen>
         _showBurstAnimation(gameController);
         gameController.setMultipliedValue(
             double.parse(amountList.amountResponse!.data![gameController.selectedIndex].amount.toString())
+          // double.parse(gameController.amount[gameController.selectedIndex])
         );
       }
     });
@@ -68,7 +69,7 @@ class _BalloonScreenState extends State<BalloonScreen>
 
   }
   void _startPipeAnimation() {
-  _pipeController.forward();
+    _pipeController.forward();
   }
 
   void _resetPipeAnimation() {
@@ -86,7 +87,7 @@ class _BalloonScreenState extends State<BalloonScreen>
         double.tryParse(amountList.amountResponse?.data?[gameController.selectedIndex].amount.toString()??"") ??
             0.0;
     gameController
-        .setMultipliedValue(gameController.multipliedValue + selectedValue/100);
+        .setMultipliedValue(gameController.multipliedValue + selectedValue);
 
     // Random chance for balloon to burst
     // if (_random.nextDouble() < 0.02) {
@@ -103,6 +104,8 @@ class _BalloonScreenState extends State<BalloonScreen>
       _showBurstAnimation(gameController);
       gameController.setMultipliedValue(
           double.parse(amountList.amountResponse!.data![gameController.selectedIndex].amount.toString()));
+      // gameController.setMultipliedValue(
+      //     double.parse(gameController.amount[gameController.selectedIndex]));
     }
     if (gameController.balloonSize >= gameController.burstThreshold) {
       if (_random.nextBool()) {
@@ -110,12 +113,14 @@ class _BalloonScreenState extends State<BalloonScreen>
         _startFlying(gameController); // Balloon flies
         gameController.setMultipliedValue(
             double.parse(amountList.amountResponse!.data![gameController.selectedIndex].amount.toString())
-    );
+          // double.parse(gameController.amount[gameController.selectedIndex])
+        );
       } else {
         gameController.setBlast(true);
         _showBurstAnimation(gameController);
         gameController.setMultipliedValue(
             double.parse(amountList.amountResponse!.data![gameController.selectedIndex].amount.toString())
+          // double.parse(gameController.amount[gameController.selectedIndex])
         );
       }
     }
@@ -191,6 +196,7 @@ class _BalloonScreenState extends State<BalloonScreen>
   Widget build(BuildContext context) {
     final gameController = Provider.of<GameController>(context);
     final amountList = Provider.of<AmountListViewModel>(context);
+    // print("Size:${gameController.balloonSize}");
     return SafeArea(
       child: Scaffold(
         body: Container(
@@ -260,7 +266,7 @@ class _BalloonScreenState extends State<BalloonScreen>
                                   shadows: [
                                     Shadow(
                                       offset:
-                                          Offset(1, 1), // Creates the 3D effect
+                                      Offset(1, 1), // Creates the 3D effect
                                       blurRadius: 2.0,
                                       color: Colors.grey,
                                     ),
@@ -300,28 +306,28 @@ class _BalloonScreenState extends State<BalloonScreen>
                     ),
                     gameController.winGif == true
                         ? Positioned(
-                            left: width * 0.15,
-                            top: -25,
-                            child: SizedBox(
-                                height: 100,
-                                width: 200,
-                                child: Lottie.asset(
-                                  "assets/lotti/confety.json",
-                                )),
-                          )
+                      left: width * 0.15,
+                      top: -25,
+                      child: SizedBox(
+                          height: 100,
+                          width: 200,
+                          child: Lottie.asset(
+                            "assets/lotti/confety.json",
+                          )),
+                    )
                         : Container(),
                   ],
                 ),
               ),
               gameController.winGif == true
                   ? Positioned(
-                      bottom: _flyAnimation.value,
-                      child: SizedBox(
-                        width: width * 1,
-                        height: height * 0.35,
-                        child: Lottie.asset("assets/lotti/win.json"),
-                      ),
-                    )
+                bottom: _flyAnimation.value,
+                child: SizedBox(
+                  width: width * 1,
+                  height: height * 0.35,
+                  child: Lottie.asset("assets/lotti/win.json"),
+                ),
+              )
                   : Positioned(
                 bottom: _flyAnimation.value,
                 left: 40,
@@ -382,119 +388,161 @@ class _BalloonScreenState extends State<BalloonScreen>
                   },
                 ),
               ),
+              // Positioned(
+              //   bottom: _flyAnimation.value,
+              //   left: 40,
+              //   child: Stack(
+              //     clipBehavior: Clip.none,
+              //     children: [
+              //       AnimatedContainer(
+              //         duration: Duration(milliseconds: 300),
+              //         width: gameController.winGif == true
+              //             ? width * 1
+              //             : gameController.balloonSize,
+              //         height: gameController.winGif == true
+              //             ? height * 0.35
+              //             : gameController.balloonSize,
+              //         decoration: BoxDecoration(
+              //           image: DecorationImage(
+              //             image: AssetImage(gameController.blast == true
+              //                 ? Assets.imagesBlasat
+              //                 : gameController.isFlying
+              //                 ? Assets.imagesFlyingBallon
+              //                 : Assets.imagesBalloon),
+              //           ),
+              //         ),
+              //         child: Center(
+              //           child: Padding(
+              //             padding: const EdgeInsets.only(left: 58.0, bottom: 20),
+              //             child: Text(
+              //               gameController.blast == true || gameController.isFlying
+              //                   ? ""
+              //                   : gameController.multipliedValue.toStringAsFixed(2),
+              //               style: TextStyle(
+              //                 fontSize: 24,
+              //                 fontWeight: FontWeight.bold,
+              //                 color: Colors.white,
+              //               ),
+              //             ),
+              //           ),
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
               gameController.winGif == true
                   ? Positioned(
-                      bottom: _flyAnimation.value,
-                      child: SizedBox(
-                        width: width * 1,
-                        height: height * 0.35,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Stack(
-                              children: [
-                                // Shadowed Text for 3D Effect
-                                Positioned(
-                                  top: 3,
-                                  left: 3,
-                                  child: ShaderMask(
-                                    shaderCallback: (bounds) => LinearGradient(
-                                      colors: [
-                                        Colors.black
-                                            .withOpacity(0.5), // Dark shadow
-                                        Colors.black
-                                            .withOpacity(0.2), // Lighter shadow
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ).createShader(bounds),
-                                    child: Text(
-                                      'You Won',
-                                      style: TextStyle(
-                                        fontSize: 32,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors
-                                            .white, // Necessary for ShaderMask
-                                      ),
-                                    ),
-                                  ),
+                bottom: _flyAnimation.value,
+                child: SizedBox(
+                  width: width * 1,
+                  height: height * 0.35,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Stack(
+                        children: [
+                          // Shadowed Text for 3D Effect
+                          Positioned(
+                            top: 3,
+                            left: 3,
+                            child: ShaderMask(
+                              shaderCallback: (bounds) => LinearGradient(
+                                colors: [
+                                  Colors.black
+                                      .withOpacity(0.5), // Dark shadow
+                                  Colors.black
+                                      .withOpacity(0.2), // Lighter shadow
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ).createShader(bounds),
+                              child: Text(
+                                'You Won',
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors
+                                      .white, // Necessary for ShaderMask
                                 ),
-                                // Foreground Golden Gradient Text
-                                ShaderMask(
-                                  shaderCallback: (bounds) => LinearGradient(
-                                    colors: [
-                                      Color(0xFFFFD700), // Gold
-                                      Color(0xFFFFC107), // Lighter Gold
-                                      Color(0xFFFFA500), // Orange Gold
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ).createShader(bounds),
-                                  child: Text(
-                                    'You Won',
-                                    style: TextStyle(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors
-                                          .white, // Necessary for ShaderMask
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                            Stack(
-                              children: [
-                                Positioned(
-                                  top: 3,
-                                  left: 3,
-                                  child: ShaderMask(
-                                    shaderCallback: (bounds) => LinearGradient(
-                                      colors: [
-                                        Colors.black
-                                            .withOpacity(0.5), // Dark shadow
-                                        Colors.black
-                                            .withOpacity(0.2), // Lighter shadow
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ).createShader(bounds),
-                                    child: Text(
-                                      "₹${gameController.multipliedValue.toStringAsFixed(2)}",
-                                      style: TextStyle(
-                                        fontSize: 32,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors
-                                            .white, // Necessary for ShaderMask
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                ShaderMask(
-                                  shaderCallback: (bounds) => LinearGradient(
-                                    colors: [
-                                      Color(0xFFFFD700), // Gold
-                                      Color(0xFFFFC107), // Lighter Gold
-                                      Color(0xFFFFA500),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ).createShader(bounds),
-                                  child: Text(
-                                    "₹${gameController.multipliedValue.toStringAsFixed(2)}",
-                                    style: TextStyle(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.w900,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
+                          ),
+                          // Foreground Golden Gradient Text
+                          ShaderMask(
+                            shaderCallback: (bounds) => LinearGradient(
+                              colors: [
+                                Color(0xFFFFD700), // Gold
+                                Color(0xFFFFC107), // Lighter Gold
+                                Color(0xFFFFA500), // Orange Gold
                               ],
-                            )
-                          ],
-                        ),
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ).createShader(bounds),
+                            child: Text(
+                              'You Won',
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: Colors
+                                    .white, // Necessary for ShaderMask
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    )
+                      Stack(
+                        children: [
+                          Positioned(
+                            top: 3,
+                            left: 3,
+                            child: ShaderMask(
+                              shaderCallback: (bounds) => LinearGradient(
+                                colors: [
+                                  Colors.black
+                                      .withOpacity(0.5), // Dark shadow
+                                  Colors.black
+                                      .withOpacity(0.2), // Lighter shadow
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ).createShader(bounds),
+                              child: Text(
+                                "₹${gameController.multipliedValue.toStringAsFixed(2)}",
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors
+                                      .white, // Necessary for ShaderMask
+                                ),
+                              ),
+                            ),
+                          ),
+                          ShaderMask(
+                            shaderCallback: (bounds) => LinearGradient(
+                              colors: [
+                                Color(0xFFFFD700), // Gold
+                                Color(0xFFFFC107), // Lighter Gold
+                                Color(0xFFFFA500),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ).createShader(bounds),
+                            child: Text(
+                              "₹${gameController.multipliedValue.toStringAsFixed(2)}",
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              )
                   : Container(),
               gameController.isFlying ||gameController.blast == true||gameController.winGif == true?Container():  Positioned(
                 top: height * 0.13 , // Moves upwards based on the animation
@@ -512,6 +560,22 @@ class _BalloonScreenState extends State<BalloonScreen>
                   },
                 ),
               ),
+              // Positioned(
+              //     top: height * 0.45,
+              //     // left: 1,
+              //     child: AnimatedBuilder(
+              //       animation: _pipeAnimation,
+              //       builder: (context, child) {
+              //         return CustomPaint(
+              //           painter: CurvedPipePainter(_pipeAnimation.value),
+              //           child: SizedBox(
+              //             width: width * 0.5,
+              //             height: height * 0.4,
+              //           ),
+              //         );
+              //       },
+              //     ),
+              //   ),
               Positioned(
                 left: width * 0.4,
                 bottom: height * 0.1,
@@ -520,6 +584,7 @@ class _BalloonScreenState extends State<BalloonScreen>
                     gameController.setIsButtonPressed(true);
                     _startTimer(gameController);
                     _startPipeAnimation();
+
                   },
                   onTapUp: (_) {
                     gameController.setIsButtonPressed(false);
@@ -529,14 +594,18 @@ class _BalloonScreenState extends State<BalloonScreen>
                     });
                     gameController.setWalletAmount(
                         (double.parse(gameController.walletAmount) +
-                                double.parse(gameController.multipliedValue
-                                    .toStringAsFixed(2)))
+                            double.parse(gameController.multipliedValue
+                                .toStringAsFixed(2)))
                             .toString());
                     gameController.setBalloonSize(250.0);
                     Future.delayed(Duration(seconds: 2), () {
                       gameController.setWinGif(false);
+                      // setState(() {
+
                       gameController.setMultipliedValue(
                           double.parse(amountList.amountResponse!.data![gameController.selectedIndex].amount.toString())
+                        // double.parse(
+                        // gameController.amount[gameController.selectedIndex])
                       );
                     });
                     _resetPipeAnimation();
@@ -566,7 +635,7 @@ class _BalloonScreenState extends State<BalloonScreen>
                             double.parse(amountList.amountResponse!.data![gameController.selectedIndex].amount.toString()));
                       },
                       child:
-                          Icon(Icons.arrow_left, size: 40, color: Colors.white),
+                      Icon(Icons.arrow_left, size: 40, color: Colors.white),
                     ),
                     SizedBox(
                       width: width * 0.8,
@@ -594,7 +663,7 @@ class _BalloonScreenState extends State<BalloonScreen>
                                   },
                                   child: Transform.translate(
                                     offset:
-                                        isSelected ? Offset(0, -8) : Offset(0, 0),
+                                    isSelected ? Offset(0, -8) : Offset(0, 0),
                                     child: Text(
                                       amount.toString(),
                                       style: TextStyle(
@@ -611,7 +680,7 @@ class _BalloonScreenState extends State<BalloonScreen>
                                 ),
                                 Transform.translate(
                                   offset:
-                                      isSelected ? Offset(0, -8) : Offset(0, 0),
+                                  isSelected ? Offset(0, -8) : Offset(0, 0),
                                   child: Text(
                                     'DMO',
                                     style: TextStyle(
@@ -642,7 +711,7 @@ class _BalloonScreenState extends State<BalloonScreen>
                         );
                       },
                       child:
-                          Icon(Icons.arrow_right, size: 40, color: Colors.white),
+                      Icon(Icons.arrow_right, size: 40, color: Colors.white),
                     ),
                   ],
                 ),
@@ -656,7 +725,7 @@ class _BalloonScreenState extends State<BalloonScreen>
 
   void _scrollToCenter(int index, double listViewWidth) {
     const itemWidth =
-        100.0;
+    100.0; // Adjust based on the actual item width and padding
     final offset = (index * itemWidth) - (listViewWidth / 2) + (itemWidth / 2);
 
     _scrollController.animateTo(

@@ -1,7 +1,26 @@
+import 'dart:async';
+
+import 'package:balloon/view_model/amount_list_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class GameController with ChangeNotifier{
+  String _utcTime = "";
+
+  String get utcTime => _utcTime;
+
+  setUtcTime(String value) {
+    _utcTime = value;
+    notifyListeners();
+  }
+  Timer? _timer;
+  void startUTCTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setUtcTime(DateFormat('HH:mm:ss').format(DateTime.now()));
+
+    });
+  }
   double _balloonSize = 250.0; // Initial size
   late double _burstThreshold;
   bool _isFlying = false;
@@ -10,9 +29,9 @@ class GameController with ChangeNotifier{
   bool _winGif = false;
   String _walletAmount="3000";
    double _sizeIncrement = 5.0; // Size increase per tick
-  final List<String> amount = ['2', '5', '10', '15','20','25','30'];
-  int _selectedIndex = 1;
-  double _multipliedValue = 0.0;
+  // final List<String> amount = ['2', '5', '10', '15','20','25','30'];
+  int _selectedIndex = 0;
+  double _multipliedValue = 5.0;
 
   double get balloonSize=>_balloonSize;
   setBalloonSize(double value){
@@ -63,6 +82,7 @@ double get burstThreshold=>_burstThreshold;
   double get multipliedValue=>_multipliedValue;
   setMultipliedValue(double value){
     _multipliedValue=value;
+    notifyListeners();
   }
 }
 class GradientText extends StatelessWidget {
@@ -165,11 +185,15 @@ class CurvedPipeTail extends CustomPainter {
       ..strokeWidth = 3;
     Path path = Path();
 
-    double controlPointX = size.height * (0.2 * animationValue*0.1);
+    // double controlPointX = size.width * (0.2 * animationValue*0.1);
+    double controlPointX = size.width * (0.2 * animationValue*0.05);
     double controlPointY = size.height;
-    path.moveTo(45, startPoint.dy);
+      path.moveTo(45, startPoint.dy);
     // path.lineTo(startPoint.dx,startPoint.dy);
-    path.quadraticBezierTo(controlPointX-20, controlPointY+50, size.width, size.height*1.5);
+    // print("Aman:${startPoint}");
+    // print("height:${size.height}");
+    // print("width:${size.width}");
+    path.quadraticBezierTo(controlPointX, controlPointY, size.width, size.height*1.5);
 
     // Draw the path
     canvas.drawPath(path, paint);
