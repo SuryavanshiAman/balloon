@@ -1,11 +1,21 @@
 import 'dart:async';
-
+import 'dart:math';
+import 'package:balloon/main.dart';
 import 'package:balloon/view_model/amount_list_view_model.dart';
+import 'package:balloon/view_model/bet_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class GameController with ChangeNotifier{
+  bool _time = false;
+
+  bool get time => _time;
+
+  seTimer(bool value) {
+    _time = value;
+  }
   String _utcTime = "";
 
   String get utcTime => _utcTime;
@@ -27,8 +37,8 @@ class GameController with ChangeNotifier{
   bool _isButtonPressed = false;
   bool _blast = false;
   bool _winGif = false;
-  String _walletAmount="3000";
-   double _sizeIncrement = 5.0; // Size increase per tick
+  // String _walletAmount="3000";
+   double _sizeIncrement = 15.0; // Size increase per tick
   // final List<String> amount = ['2', '5', '10', '15','20','25','30'];
   int _selectedIndex = 0;
   double _multipliedValue = 5.0;
@@ -53,11 +63,11 @@ double get burstThreshold=>_burstThreshold;
     _burstThreshold=value;
     notifyListeners();
   }
-  String get walletAmount=>_walletAmount;
-  setWalletAmount(String value){
-    _walletAmount=value;
-    notifyListeners();
-  }
+  // String get walletAmount=>_walletAmount;
+  // setWalletAmount(String value){
+  //   _walletAmount=value;
+  //   notifyListeners();
+  // }
   bool get isFlying=>_isFlying;
   setIsFlying(bool value){
     _isFlying=value;
@@ -120,7 +130,7 @@ class CurvedPipePainter extends CustomPainter {
     Paint paint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3;
+      ..strokeWidth = 1;
 
     // Define a path for the curved pipe
     Path path = Path();
@@ -245,5 +255,78 @@ class TailPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return true; // Always repaint when the tail changes
+  }
+}
+class BurstAnimationDialog extends StatefulWidget {
+  final GameController gameController;
+
+  BurstAnimationDialog(this.gameController);
+
+  @override
+  _BurstAnimationDialogState createState() => _BurstAnimationDialogState();
+}
+
+class _BurstAnimationDialogState extends State<BurstAnimationDialog> {
+  int _seconds = 3;
+  final Random _random = Random();
+  @override
+  void initState() {
+    super.initState();
+
+    // Start the countdown
+    _startCountdown();
+  }
+
+  void _startCountdown() {
+    final amountList = Provider.of<AmountListViewModel>(context,listen: false);
+    final bet = Provider.of<BetViewModel>(context,listen: false);
+    bet.betApi(amountList.amountResponse!.data![widget.gameController.selectedIndex].amount.toString(), "0", context);
+
+    Timer.periodic(Duration(seconds: 1), (timer) {
+      if (_seconds > 0) {
+        setState(() {
+          _seconds--;
+        });
+        widget.gameController.seTimer(true);
+        widget.gameController.setBlast(false);
+      } else {
+
+        timer.cancel();
+
+        _resetBalloon(widget.gameController);
+        Navigator.of(context).pop();
+        widget.gameController.seTimer(false);// Close the dialog after the countdown
+      }
+    });
+  }
+
+  void _resetBalloon(GameController gameController) {
+    gameController.setBlast(false);
+    gameController.setBalloonSize(250.0);
+    gameController.setBurstThreshold(
+        gameController.balloonSize + _random.nextDouble() * 100.0);
+    gameController.setIsFlying(false);
+    // _controller.reset();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      alignment: Alignment.center,
+      backgroundColor: Colors.transparent,
+      content: Padding(
+        padding: const EdgeInsets.only(top: 150.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(height: height*0.02,),
+            Text(
+              "Game will start in $_seconds seconds",
+              style: TextStyle(color: Colors.white, fontSize: 16,fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

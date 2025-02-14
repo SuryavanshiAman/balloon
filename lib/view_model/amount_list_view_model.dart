@@ -15,9 +15,10 @@ class AmountListViewModel with ChangeNotifier {
   }
 
   Future<void> amountListApi(context) async {
+    print("😊😊😊");
     GameController gameController =GameController();
     _amountListRepo.amountListApi().then((value) {
-      if (value.status == 200) {
+      if (value.status == true) {
         setAmountListModel(value);
         print(amountResponse?.data?[0].amount.toString()??"");
         gameController.setMultipliedValue(double.parse(amountResponse?.data?[0].amount.toString()??""));

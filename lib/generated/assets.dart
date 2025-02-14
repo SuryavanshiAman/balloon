@@ -2,15 +2,23 @@
 class Assets {
   Assets._();
 
+  static const String fontSitkaSmall = 'font/Sitka-Small.ttf';
   static const String imagesBalanceTag = 'assets/images/balance_tag.png';
   static const String imagesBalloon = 'assets/images/balloon.png';
+  static const String imagesBalloonVid = 'assets/images/balloon_vid.gif';
   static const String imagesBg = 'assets/images/bg.png';
   static const String imagesBlasat = 'assets/images/blasat.gif';
   static const String imagesButton = 'assets/images/button.png';
   static const String imagesClick = 'assets/images/click.png';
   static const String imagesFlyingBallon = 'assets/images/flying_ballon.png';
+  static const String imagesLogOut = 'assets/images/log_out.png';
+  static const String imagesLoginBg = 'assets/images/login_bg.png';
+  static const String imagesLogo = 'assets/images/logo.png';
+  static const String imagesMyBet = 'assets/images/my_bet.png';
   static const String imagesPipe = 'assets/images/pipe.png';
+  static const String imagesTopWin = 'assets/images/top_win.png';
   static const String imagesWin = 'assets/images/win.gif';
+  static const String lottiBalloon = 'assets/lotti/balloon.json';
   static const String lottiCoin = 'assets/lotti/coin.json';
   static const String lottiConfety = 'assets/lotti/confety.json';
   static const String lottiWin = 'assets/lotti/win.json';
