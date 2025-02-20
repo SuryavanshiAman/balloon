@@ -43,7 +43,7 @@ class _BalloonScreenState extends State<BalloonScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       gameController.startUTCTimer();
       gameController.setBurstThreshold(
-          gameController.balloonSize + _random.nextDouble() * 1000.0);
+          gameController.balloonSize + _random.nextDouble() * 100.0);
       gameController.setMultipliedValue(double.parse(amountList.amountResponse?.data?.first.toString()??""));
     });
     // Setup animation controller for smooth flying
@@ -88,10 +88,8 @@ class _BalloonScreenState extends State<BalloonScreen>
 
   void _increaseSize(GameController gameController) {
     final amountList= Provider.of<AmountListViewModel>(context, listen: false);
-    final profile =     Provider.of<ProfileViewModel>(context, listen: false).profileResponse?.gameType;
-
+    final profile = Provider.of<ProfileViewModel>(context, listen: false).profileResponse?.gameType;
     if (gameController.isFlying) return;
-
     gameController.setBalloonSize(
         gameController.balloonSize + gameController.sizeIncrement);
 
@@ -99,11 +97,14 @@ class _BalloonScreenState extends State<BalloonScreen>
         double.tryParse(amountList.amountResponse?.data?[gameController.selectedIndex].amount.toString()??"") ??
             0.0;
     gameController
-        .setMultipliedValue(gameController.multipliedValue + selectedValue/100);
+        .setMultipliedValue(gameController.multipliedValue + selectedValue/1000);
 
     // Random chance for balloon to burst
     if(profile=="1"){
-      if (_random.nextDouble() < 0.02) {
+      if (
+      // _random.nextDouble() < 0.01
+      100 < 0.01
+      ) {
         gameController.setBlast(true);
         _showBurstAnimation(gameController);
         gameController.setMultipliedValue(
@@ -187,6 +188,9 @@ class _BalloonScreenState extends State<BalloonScreen>
       context: context,
       builder: (context) => BurstAnimationDialog(gameController),
     );
+    setState(() {
+      newBalloon=false;
+    });
     _controller.reset();
   }
   // void _resetBalloon(GameController gameController) {
@@ -200,8 +204,10 @@ class _BalloonScreenState extends State<BalloonScreen>
   // }
 
   void _startTimer(GameController gameController) {
-    _timer = Timer.periodic(Duration(milliseconds: 700), (timer) {
-      _increaseSize(gameController);
+    _timer = Timer.periodic(Duration(milliseconds: 900), (timer) {
+     gameController.balloonSize!=width? _increaseSize(gameController):_startFlying(gameController);
+
+      print("Aman:${gameController.balloonSize}");
     });
   }
 
@@ -223,12 +229,14 @@ class _BalloonScreenState extends State<BalloonScreen>
   Future<bool> _onWillPop() async {
     return await Utils.showExitConfirmation(context);
   }
+  bool newBalloon=false;
   @override
   Widget build(BuildContext context) {
     final gameController = Provider.of<GameController>(context);
     final amountList = Provider.of<AmountListViewModel>(context);
     final bet = Provider.of<BetViewModel>(context);
     final profile=Provider.of<ProfileViewModel>(context).profileResponse?.data;
+    final share=Provider.of<ProfileViewModel>(context).profileResponse;
     return PopScope(
       canPop: false,
       onPopInvoked: (v) {
@@ -298,6 +306,11 @@ class _BalloonScreenState extends State<BalloonScreen>
                               case 'Bank':
                                 Navigator.pushNamed(context, RoutesName.bankDetails);  // Use your route for Bank
                                 break;
+                              case 'Share':
+                                // Utils.launchURL(share?.gameUrl??"");
+                                Utils.share(share?.gameUrl??"");
+                                // Navigator.pushNamed(context, RoutesName.bankDetails);  // Use your route for Bank
+                                break;
                               case 'Logout':Utils.showLogOutConfirmation(context);  // Use your route for Bank
                                 break;
                               default:
@@ -319,6 +332,10 @@ class _BalloonScreenState extends State<BalloonScreen>
                             PopupMenuItem<String>(
                               value: 'Bank',
                               child: Text('Bank'),
+                            ),
+                            PopupMenuItem<String>(
+                              value: 'Share',
+                              child: Text('Share'),
                             ),
                             PopupMenuItem<String>(
                               value: 'Logout',
@@ -466,6 +483,7 @@ class _BalloonScreenState extends State<BalloonScreen>
                             key: _containerKey,
                             width: gameController.winGif == true
                                 ? width * 1
+                                // : width * 0.7,
                                 : gameController.balloonSize,
                             height: gameController.winGif == true
                                 ? height * 0.35
@@ -477,14 +495,15 @@ class _BalloonScreenState extends State<BalloonScreen>
                                     ? Assets.imagesBlasat
                                     : gameController.isFlying
                                     ? Assets.imagesFlyingBallon
-                                    : Assets.imagesBalloon),
+                                    // :newBalloon==false? Assets.imagesBalloon:"assets/images/down_to_up.gif")
+                                    :Assets.imagesBalloon)
                                     // :"assets/images/balloon_vid.gif"),
                               ):null,
                             ),
                             child:  Align(
                               alignment: Alignment.centerRight,
                               child: Padding(
-                                padding:  EdgeInsets.only(right: 80,bottom: 10),
+                                padding:  EdgeInsets.only(right: 80,bottom: 60),
                                 child: gameController.time==false?Text(
                                   gameController.blast == true || gameController.isFlying
                                       ? ""
@@ -635,7 +654,7 @@ class _BalloonScreenState extends State<BalloonScreen>
                 //   ),
                 // ),
                 Positioned(
-                  top: height * 0.45,
+                  top: height * 0.3,
                   // left: 1,
                   child: AnimatedBuilder(
                     animation: _pipeAnimation,
@@ -656,17 +675,29 @@ class _BalloonScreenState extends State<BalloonScreen>
                   bottom: height * 0.1,
                   child: GestureDetector(
                     onTapDown: (_) {
-                      gameController.setIsButtonPressed(true);
-                      _startTimer(gameController);
-                      _startPipeAnimation();
+                     if( profile?.wallet==0){
+                       Navigator.pushNamed(context, RoutesName.depositScreen);
+                       Utils.setSnackBar("Insufficient Balance", AppColor.red, context);
+                     }else{
+                       setState(() {
+                         newBalloon=true;
+
+                       });
+                       gameController.setIsButtonPressed(true);
+                       _startTimer(gameController);
+                       _startPipeAnimation();
+                     }
+
                     },
                     onTapUp: (_) {
+                      if(profile?.wallet!=0){
                       if(gameController.blast==false){
                         bet.betApi(amountList.amountResponse!.data![gameController.selectedIndex].amount.toString(), gameController.multipliedValue.toStringAsFixed(2), context);
                         Provider.of<BetHistoryViewModel>(context, listen: false).betHistoryApi(context);
                         gameController.setIsButtonPressed(false);
                         _stopTimer();
                         setState(() {
+                          newBalloon=false;
                           gameController.setWinGif(true);
                         });
                         gameController.setBalloonSize(250.0);
@@ -681,7 +712,11 @@ class _BalloonScreenState extends State<BalloonScreen>
 
                       }
 
-                    },
+                    } else{
+                        Navigator.pushNamed(context, RoutesName.depositScreen);
+                      }
+                      }
+                     ,
                     onTapCancel: () {
                       gameController.setIsButtonPressed(false);
                       _stopTimer();

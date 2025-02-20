@@ -1,4 +1,5 @@
 
+import 'package:balloon/main.dart';
 import 'package:balloon/res/app_colors.dart';
 import 'package:balloon/res/back_button.dart';
 import 'package:balloon/res/circular_button.dart';
@@ -21,7 +22,7 @@ class _WithdrawPageState extends State<WithdrawPage> {
   TextEditingController password = TextEditingController();
   int _selectedItemIndex = 10; // Initialize with a value that won't match any index
   bool _isButtonEnabled = false;
-  List<int> indianAmount = [300, 500, 1000, 2000, 5000, 10000, 49999];
+  List<int> indianAmount = [200, 500, 800, 1100, 1400, 1700, 2000];
   void _handleTextChange() {
     setState(() {
       _selectedItemIndex = 10; // Reset selected index
@@ -314,6 +315,14 @@ class _WithdrawPageState extends State<WithdrawPage> {
                     },
                     text: 'WITHDRAL REQUEST')
                     : const CircularButton(),
+                SizedBox(
+                  height: height * 0.03,
+                ),
+                const Center(
+                    child: Text(
+                      "Minimum Withdrawal Amount is ₹300",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ))
 
               ]),
         ));

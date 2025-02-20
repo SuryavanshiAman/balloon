@@ -10,6 +10,7 @@ class Assets {
   static const String imagesBlasat = 'assets/images/blasat.gif';
   static const String imagesButton = 'assets/images/button.png';
   static const String imagesClick = 'assets/images/click.png';
+  static const String imagesDownToUp = 'assets/images/down_to_up.gif';
   static const String imagesFlyingBallon = 'assets/images/flying_ballon.png';
   static const String imagesLogOut = 'assets/images/log_out.png';
   static const String imagesLoginBg = 'assets/images/login_bg.png';

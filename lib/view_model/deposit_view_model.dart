@@ -36,8 +36,6 @@ class DepositViewModel with ChangeNotifier{
         setLoading(false);
 
         launchURL(value['payment_link'].toString());
-        // Navigator.pushReplacementNamed(context, RoutesName.balloonScreen);
-        // Utils.setSnackBar(value['message'], AppColor.green, context);
       }
       else {
         setLoading(false);
@@ -53,8 +51,6 @@ class DepositViewModel with ChangeNotifier{
   static Future<void> launchURL(String url) async {
     try {
       Uri uri = Uri.parse(url);
-      debugPrint("Trying to launch: $uri");
-
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {

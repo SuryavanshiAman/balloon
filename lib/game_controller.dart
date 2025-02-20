@@ -130,7 +130,7 @@ class CurvedPipePainter extends CustomPainter {
     Paint paint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
+      ..strokeWidth = 2.5;
 
     // Define a path for the curved pipe
     Path path = Path();

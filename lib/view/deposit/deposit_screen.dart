@@ -70,7 +70,7 @@ class _DepositScreenState extends State<DepositScreen> {
   int _selectedItemIndex =
   10; // Initialize with a value that won't match any index
   bool _isButtonEnabled = false;
-  List<int> indianAmount = [10000, 50000, 100000, 200000, 500000, 5000000];
+  List<int> indianAmount = [100, 200,400, 500, 1000, 2000,4000,5000];
   void _handleTextChange() {
     setState(() {
       _selectedItemIndex = 10; // Reset selected index

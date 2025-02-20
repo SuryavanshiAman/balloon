@@ -2,6 +2,7 @@ class ProfileModel {
   bool? status;
   String? message;
   String? gameType;
+  String? gameUrl;
   Data? data;
 
 
@@ -11,6 +12,7 @@ class ProfileModel {
     status = json['status'];
     message = json['message'];
     gameType = json['game_type'];
+    gameUrl = json['game_url'];
     data = json['data'] != null ? new Data.fromJson(json['data']) : null;
 
   }
@@ -20,6 +22,7 @@ class ProfileModel {
     data['status'] = this.status;
     data['message'] = this.message;
     data['game_type'] = this.gameType;
+    data['game_url'] = this.gameUrl;
     if (this.data != null) {
       data['data'] = this.data!.toJson();
     }

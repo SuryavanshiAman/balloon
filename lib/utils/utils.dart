@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'routes/routes_name.dart';
 
 class Utils {
@@ -282,5 +284,29 @@ class Utils {
         ],
       ),
     );
+  }
+  static Future<void> launchURL(String url) async {
+    print(url);
+    try {
+      Uri uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        debugPrint("Could not launch: $uri");
+      }
+    } catch (e) {
+      debugPrint("Error launching URL: $e");
+    }
+  }
+  static  Future<void> share(url) async {
+    // FlutterShare.share(
+    //   title: "Join Now & Get Exiting Prizes. here is my Referral Code",
+    //   text: ' https://admin.xgamblur.com/?id=1',
+    // );
+    await Share.share(
+        'Download  Now & Win Exciting Prizes.   '
+        "$url",
+        subject: "$url" );
+
   }
 }
