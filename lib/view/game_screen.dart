@@ -97,7 +97,7 @@ class _BalloonScreenState extends State<BalloonScreen>
         double.tryParse(amountList.amountResponse?.data?[gameController.selectedIndex].amount.toString()??"") ??
             0.0;
     gameController
-        .setMultipliedValue(gameController.multipliedValue + selectedValue/1000);
+        .setMultipliedValue(gameController.multipliedValue + selectedValue/50);
 
     // Random chance for balloon to burst
     if(profile=="1"){
@@ -113,7 +113,10 @@ class _BalloonScreenState extends State<BalloonScreen>
         );
       }
     }else{
-      if (_random.nextDouble() < 0.03 + (gameController.balloonSize / 1000)) {
+      if (
+      100 < 0.03 + (gameController.balloonSize / 1000)
+      // _random.nextDouble() < 0.03 + (gameController.balloonSize / 1000)
+      ) {
         final amountList= Provider.of<AmountListViewModel>(context, listen: false);
         gameController.setBlast(true);
         _showBurstAnimation(gameController);
@@ -204,7 +207,7 @@ class _BalloonScreenState extends State<BalloonScreen>
   // }
 
   void _startTimer(GameController gameController) {
-    _timer = Timer.periodic(Duration(milliseconds: 900), (timer) {
+    _timer = Timer.periodic(Duration(milliseconds:550), (timer) {
      gameController.balloonSize!=width? _increaseSize(gameController):_startFlying(gameController);
 
       print("Aman:${gameController.balloonSize}");
@@ -411,25 +414,25 @@ class _BalloonScreenState extends State<BalloonScreen>
                                   ),
                                 ),
                               ),
-                              WidgetSpan(
-                                child: GradientText(
-                                  text: ' DMO',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    shadows: [
-                                      Shadow(
-                                        offset: Offset(1.5, 1.5),
-                                        blurRadius: 2.0,
-                                        color: Colors.grey,
-                                      ),
-                                    ],
-                                  ),
-                                  gradient: LinearGradient(
-                                    colors: [Colors.orange, Colors.red],
-                                  ),
-                                ),
-                              ),
+                              // WidgetSpan(
+                              //   child: GradientText(
+                              //     text: ' DMO',
+                              //     style: const TextStyle(
+                              //       fontSize: 14,
+                              //       fontWeight: FontWeight.w600,
+                              //       shadows: [
+                              //         Shadow(
+                              //           offset: Offset(1.5, 1.5),
+                              //           blurRadius: 2.0,
+                              //           color: Colors.grey,
+                              //         ),
+                              //       ],
+                              //     ),
+                              //     gradient: LinearGradient(
+                              //       colors: [Colors.orange, Colors.red],
+                              //     ),
+                              //   ),
+                              // ),
                             ],
                           ),
                         ),
@@ -825,22 +828,22 @@ class _BalloonScreenState extends State<BalloonScreen>
                                       ),
                                     ),
                                   ),
-                                  Transform.translate(
-                                    offset:
-                                        isSelected ? Offset(0, -8) : Offset(0, 0),
-                                    child: Text(
-                                      'DMO',
-                                      style: TextStyle(
-                                        fontSize: isSelected ? 16 : 12,
-                                        fontWeight: isSelected
-                                            ? FontWeight.w900
-                                            : FontWeight.normal,
-                                        color: isSelected
-                                            ? Colors.white
-                                            : Colors.white54,
-                                      ),
-                                    ),
-                                  ),
+                                  // Transform.translate(
+                                  //   offset:
+                                  //       isSelected ? Offset(0, -8) : Offset(0, 0),
+                                  //   child: Text(
+                                  //     'DMO',
+                                  //     style: TextStyle(
+                                  //       fontSize: isSelected ? 16 : 12,
+                                  //       fontWeight: isSelected
+                                  //           ? FontWeight.w900
+                                  //           : FontWeight.normal,
+                                  //       color: isSelected
+                                  //           ? Colors.white
+                                  //           : Colors.white54,
+                                  //     ),
+                                  //   ),
+                                  // ),
                                 ],
                               ),
                             );
