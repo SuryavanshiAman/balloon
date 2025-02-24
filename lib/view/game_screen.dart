@@ -31,9 +31,11 @@ class _BalloonScreenState extends State<BalloonScreen>
   late Animation<double> _pipeAnimation;
   final Random _random = Random();
   Timer? _timer;
+  final ScrollController _scrollController = ScrollController();
   @override
   void initState() {
     super.initState();
+    // _scrollController.addListener(_onScroll);
     final gameController = Provider.of<GameController>(context, listen: false);
     final amountList= Provider.of<AmountListViewModel>(context, listen: false);
      Provider.of<ProfileViewModel>(context, listen: false).getProfileApi(context);
@@ -78,6 +80,29 @@ class _BalloonScreenState extends State<BalloonScreen>
     );
 
   }
+  bool _isManualScroll = false;
+  void _onScroll() {
+    final gameController = Provider.of<GameController>(context, listen: false);
+    final amountList= Provider.of<AmountListViewModel>(context, listen: false);
+    if (_isManualScroll) return; // Agar manual scroll hai to ignore karo
+
+    double itemWidth = 45.0;
+    double currentOffset = _scrollController.offset;
+
+    // int newIndex = (currentOffset / itemWidth).round(); // Closest index find kro
+    int newIndex = (currentOffset / itemWidth).round(); // Closest index find kro
+
+    if (newIndex != gameController.selectedIndex &&
+        newIndex >= 0 &&
+        newIndex < (amountList.amountResponse?.data?.length ?? 0)) {
+
+      gameController.setSelectedIndex(newIndex);
+      gameController.setMultipliedValue(
+          double.parse(amountList.amountResponse!.data![newIndex].amount.toString())
+      );
+    }
+  }
+
   void _startPipeAnimation() {
   _pipeController.forward();
   }
@@ -96,14 +121,14 @@ class _BalloonScreenState extends State<BalloonScreen>
     double selectedValue =
         double.tryParse(amountList.amountResponse?.data?[gameController.selectedIndex].amount.toString()??"") ??
             0.0;
-    gameController
-        .setMultipliedValue(gameController.multipliedValue + selectedValue/50);
+
+    gameController.multipliedValue<=1000?  gameController.setMultipliedValue(gameController.multipliedValue + selectedValue/10): gameController.setMultipliedValue(gameController.multipliedValue + selectedValue/10000);
 
     // Random chance for balloon to burst
     if(profile=="1"){
       if (
-      // _random.nextDouble() < 0.01
-      100 < 0.01
+      _random.nextDouble() < 0.01
+      // 100 < 0.01
       ) {
         gameController.setBlast(true);
         _showBurstAnimation(gameController);
@@ -114,8 +139,8 @@ class _BalloonScreenState extends State<BalloonScreen>
       }
     }else{
       if (
-      100 < 0.03 + (gameController.balloonSize / 1000)
-      // _random.nextDouble() < 0.03 + (gameController.balloonSize / 1000)
+      // 100 < 0.03 + (gameController.balloonSize / 1000)
+      _random.nextDouble() < 0.03 + (gameController.balloonSize / 1000)
       ) {
         final amountList= Provider.of<AmountListViewModel>(context, listen: false);
         gameController.setBlast(true);
@@ -210,7 +235,6 @@ class _BalloonScreenState extends State<BalloonScreen>
     _timer = Timer.periodic(Duration(milliseconds:550), (timer) {
      gameController.balloonSize!=width? _increaseSize(gameController):_startFlying(gameController);
 
-      print("Aman:${gameController.balloonSize}");
     });
   }
 
@@ -228,7 +252,7 @@ class _BalloonScreenState extends State<BalloonScreen>
 
   Offset _startPosition = Offset.zero;
   final GlobalKey _containerKey = GlobalKey();
-  final ScrollController _scrollController = ScrollController();
+
   Future<bool> _onWillPop() async {
     return await Utils.showExitConfirmation(context);
   }
@@ -787,17 +811,80 @@ class _BalloonScreenState extends State<BalloonScreen>
                         child:
                             Icon(Icons.arrow_left, size: 40, color: Colors.white),
                       ),
+                      // SizedBox(
+                      //   width: width * 0.8,
+                      //   height: height * 0.08,
+                      //   child: ListView.builder(
+                      //     controller: _scrollController,
+                      //     scrollDirection: Axis.horizontal,
+                      //     itemCount:amountList.amountResponse?.data?.length??0 ,
+                      //     itemBuilder: (context, index) {
+                      //       final amount =amountList.amountResponse?.data?[index].amount??"";
+                      //       final isSelected =
+                      //           index == gameController.selectedIndex;
+                      //       return Padding(
+                      //         padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                      //         child: Column(
+                      //           mainAxisAlignment: MainAxisAlignment.center,
+                      //           children: [
+                      //             InkWell(
+                      //               onTap: () {
+                      //                 gameController.setSelectedIndex(index);
+                      //                 gameController.setMultipliedValue(
+                      //                     double.parse(amountList.amountResponse!.data![gameController.selectedIndex].amount.toString())
+                      //                 );
+                      //                 _scrollToCenter(index, width);
+                      //               },
+                      //               child: Transform.translate(
+                      //                 offset:
+                      //                     isSelected ? Offset(0, -8) : Offset(0, 0),
+                      //                 child: Text(
+                      //                   amount.toString(),
+                      //                   style: TextStyle(
+                      //                     fontSize: isSelected ? 20 : 18,
+                      //                     fontWeight: isSelected
+                      //                         ? FontWeight.w900
+                      //                         : FontWeight.normal,
+                      //                     color: isSelected
+                      //                         ? Colors.white
+                      //                         : Colors.white70,
+                      //                   ),
+                      //                 ),
+                      //               ),
+                      //             ),
+                      //             // Transform.translate(
+                      //             //   offset:
+                      //             //       isSelected ? Offset(0, -8) : Offset(0, 0),
+                      //             //   child: Text(
+                      //             //     'DMO',
+                      //             //     style: TextStyle(
+                      //             //       fontSize: isSelected ? 16 : 12,
+                      //             //       fontWeight: isSelected
+                      //             //           ? FontWeight.w900
+                      //             //           : FontWeight.normal,
+                      //             //       color: isSelected
+                      //             //           ? Colors.white
+                      //             //           : Colors.white54,
+                      //             //     ),
+                      //             //   ),
+                      //             // ),
+                      //           ],
+                      //         ),
+                      //       );
+                      //     },
+                      //   ),
+                      // ),
                       SizedBox(
                         width: width * 0.8,
                         height: height * 0.08,
                         child: ListView.builder(
                           controller: _scrollController,
                           scrollDirection: Axis.horizontal,
-                          itemCount:amountList.amountResponse?.data?.length??0 ,
+                          itemCount: amountList.amountResponse?.data?.length ?? 0,
                           itemBuilder: (context, index) {
-                            final amount =amountList.amountResponse?.data?[index].amount??"";
-                            final isSelected =
-                                index == gameController.selectedIndex;
+                            final amount = amountList.amountResponse?.data?[index].amount ?? "";
+                            final isSelected = index == gameController.selectedIndex;
+
                             return Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 30.0),
                               child: Column(
@@ -812,44 +899,24 @@ class _BalloonScreenState extends State<BalloonScreen>
                                       _scrollToCenter(index, width);
                                     },
                                     child: Transform.translate(
-                                      offset:
-                                          isSelected ? Offset(0, -8) : Offset(0, 0),
+                                      offset: isSelected ? Offset(0, -8) : Offset(0, 0),
                                       child: Text(
                                         amount.toString(),
                                         style: TextStyle(
                                           fontSize: isSelected ? 20 : 18,
-                                          fontWeight: isSelected
-                                              ? FontWeight.w900
-                                              : FontWeight.normal,
-                                          color: isSelected
-                                              ? Colors.white
-                                              : Colors.white70,
+                                          fontWeight: isSelected ? FontWeight.w900 : FontWeight.normal,
+                                          color: isSelected ? Colors.white : Colors.white70,
                                         ),
                                       ),
                                     ),
                                   ),
-                                  // Transform.translate(
-                                  //   offset:
-                                  //       isSelected ? Offset(0, -8) : Offset(0, 0),
-                                  //   child: Text(
-                                  //     'DMO',
-                                  //     style: TextStyle(
-                                  //       fontSize: isSelected ? 16 : 12,
-                                  //       fontWeight: isSelected
-                                  //           ? FontWeight.w900
-                                  //           : FontWeight.normal,
-                                  //       color: isSelected
-                                  //           ? Colors.white
-                                  //           : Colors.white54,
-                                  //     ),
-                                  //   ),
-                                  // ),
                                 ],
                               ),
                             );
                           },
                         ),
                       ),
+
                       GestureDetector(
                         onTap: () {
                           final newIndex = min(amountList.amountResponse!.data!.length - 1,
@@ -876,14 +943,15 @@ class _BalloonScreenState extends State<BalloonScreen>
   }
 
   void _scrollToCenter(int index, double listViewWidth) {
-    const itemWidth =
-        115.0;
+    const itemWidth = 115.0;
     final offset = (index * itemWidth) - (listViewWidth / 2) + (itemWidth / 2);
 
     _scrollController.animateTo(
-      offset.clamp(0.0, _scrollController.position.maxScrollExtent),
+      offset.clamp(5.0, _scrollController.position.maxScrollExtent),
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
-    );
+    ).then((_) {
+      _isManualScroll = false;
+    });
   }
 }
